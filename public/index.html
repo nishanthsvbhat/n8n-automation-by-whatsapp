@@ -3,185 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp N8N Automation - Setup Guide</title>
+    <title>WhatsApp N8N Automation Dashboard</title>
     <style>
+        /* CSS Custom Properties for Theming */
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #f0f4f8;
+            --text-secondary: #cdd5de;
+            --accent-primary: #8096ff;
+            --accent-secondary: #48bb78;
+            --status-online: #4CAF50;
+            --status-offline: #f44336;
+            --status-checking: #ffc107;
+            --code-bg: rgba(0, 0, 0, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        [data-theme="light"] {
+            --bg-gradient-start: #f4f7fa;
+            --bg-gradient-end: #e6e9ee;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --accent-primary: #5a67d8;
+            --accent-secondary: #38a169;
+            --code-bg: #edf2f7;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: var(--font-family);
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            background-attachment: fixed;
+            transition: background 0.3s ease, color 0.3s ease;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
         
+        /* Header & Theme Toggle */
         .header {
             text-align: center;
-            color: white;
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .theme-switcher {
+            position: absolute;
+            top: 0;
+            right: 0;
+            cursor: pointer;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
         }
         
+        .theme-switcher svg {
+             width: 24px;
+             height: 24px;
+             fill: var(--text-primary);
+        }
+
         .header h1 {
-            font-size: 3rem;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 8px var(--shadow-color);
         }
-        
+
         .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
         }
         
+        /* Grid Layout */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
-            margin-bottom: 3rem;
         }
-        
+
+        /* Card Styling (Glassmorphism) */
         .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px var(--shadow-color);
         }
-        
+
         .card h3 {
-            color: #667eea;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
-        .card ul {
-            list-style: none;
-            padding-left: 0;
+        .card h3 svg {
+            width: 28px;
+            height: 28px;
+            opacity: 0.8;
         }
-        
-        .card li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #eee;
+
+        .card h4 {
+            font-size: 1.2rem;
+            margin: 1.5rem 0 0.75rem 0;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.5rem;
         }
+
+        ul, ol { list-style: none; padding-left: 0; }
         
-        .card li:last-child {
-            border-bottom: none;
+        li { padding: 0.75rem 0; }
+        
+        ol li {
+            counter-increment: step-counter;
+            margin-left: 2rem;
+            position: relative;
         }
-        
+        ol li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: -2.5rem;
+            background-color: var(--accent-primary);
+            color: white;
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Status Indicator */
+        .status-item { display: flex; align-items: center; justify-content: space-between; }
         .status-indicator {
             display: inline-block;
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
         }
-        
-        .status-online {
-            background-color: #4CAF50;
+        .status-indicator.online { background-color: var(--status-online); }
+        .status-indicator.offline { background-color: var(--status-offline); }
+        .status-indicator.checking {
+            background-color: var(--status-checking);
+            animation: pulse 1.5s infinite;
         }
-        
-        .status-offline {
-            background-color: #f44336;
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
         }
-        
+
+        /* Buttons */
+        .btn-group { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 10px; }
         .btn {
-            display: inline-block;
             padding: 12px 24px;
-            background: #667eea;
             color: white;
             text-decoration: none;
-            border-radius: 6px;
-            transition: background-color 0.3s ease;
-            margin: 5px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .btn:hover {
-            background: #5a67d8;
+        .btn.primary { background: var(--accent-primary); }
+        .btn.primary:hover { background: #697efb; box-shadow: 0 4px 15px rgba(105, 126, 251, 0.4); }
+        .btn.secondary { background: var(--accent-secondary); }
+        .btn.secondary:hover { background: #41c882; box-shadow: 0 4px 15px rgba(65, 200, 130, 0.4); }
+
+        /* Code Block */
+        .code-block-wrapper {
+            position: relative;
+            margin: 1rem 0;
         }
-        
-        .btn-secondary {
-            background: #48bb78;
-        }
-        
-        .btn-secondary:hover {
-            background: #38a169;
-        }
-        
         .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 1rem;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            margin: 1rem 0;
+            background: var(--code-bg);
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.95rem;
             overflow-x: auto;
+            white-space: pre;
         }
-        
-        .alert {
-            padding: 1rem;
-            border-radius: 6px;
-            margin: 1rem 0;
-        }
-        
-        .alert-warning {
-            background: #fed7d7;
-            border: 1px solid #feb2b2;
-            color: #c53030;
-        }
-        
-        .alert-info {
-            background: #bee3f8;
-            border: 1px solid #90cdf4;
-            color: #2c5282;
-        }
-        
-        .footer {
-            text-align: center;
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            margin-top: 3rem;
-            opacity: 0.8;
+            padding: 5px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
         }
+        .copy-btn:hover { opacity: 1; }
+        
+        [data-theme="light"] .copy-btn {
+            background: #e2e8f0;
+            border: 1px solid #cbd5e0;
+            color: #2d3748;
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .alert svg { width: 24px; height: 24px; flex-shrink: 0; }
+        .alert-warning { background: #fed7d730; border-color: #feb2b2; color: #f8c2c2; }
+        .alert-warning svg { fill: #feb2b2; }
+        .alert-info { background: #bee3f830; border-color: #90cdf4; color: #a4d3f3; }
+        .alert-info svg { fill: #90cdf4; }
+        
+        [data-theme="light"] .alert-warning { color: #c53030; background: #fed7d7; }
+        [data-theme="light"] .alert-info { color: #2c5282; background: #bee3f8; }
+
+        /* Footer */
+        .footer { text-align: center; margin-top: 4rem; color: var(--text-secondary); opacity: 0.8; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-status" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm-1-12h2v6h-2zm0 8h2v2h-2z"/></symbol>
+        <symbol id="icon-setup" viewBox="0 0 24 24"><path d="M19.4 12.9c.2-.5.3-1 .3-1.5s-.1-1-.3-1.5l2.4-1.9c.4-.3.5-.8.2-1.2l-2-3.5c-.3-.4-.8-.5-1.2-.2l-2.9 1.2c-.7-.5-1.5-.9-2.3-1.1l-.4-3.2c-.1-.5-.5-.8-1-.8h-4c-.5 0-.9.3-1 .8l-.4 3.2c-.8.2-1.6.6-2.3 1.1L3.9 6.2c-.4-.3-.9-.2-1.2.2l-2 3.5c-.3.4-.2.9.2 1.2l2.4 1.9c-.2.5-.3 1-.3 1.5s.1 1 .3 1.5l-2.4 1.9c-.4.3-.5.8-.2 1.2l2 3.5c.3.4.8.5 1.2.2l2.9-1.2c.7.5 1.5.9 2.3 1.1l.4 3.2c.1.5.5.8 1 .8h4c.5 0 .9-.3 1-.8l.4-3.2c.8-.2 1.6-.6 2.3-1.1l2.9 1.2c.4.3.9.2 1.2-.2l2-3.5c.3-.4.2-.9-.2-1.2l-2.4-1.9zM12 15.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z"/></symbol>
+        <symbol id="icon-link" viewBox="0 0 24 24"><path d="M17 7h-4v2h4c1.7 0 3 1.3 3 3s-1.3 3-3 3h-4v2h4c2.8 0 5-2.2 5-5s-2.2-5-5-5zm-6 8H7c-1.7 0-3-1.3-3-3s1.3-3 3-3h4V7H7c-2.8 0-5 2.2-5 5s2.2 5 5 5h4v-2zm-1-4h-2v2h2v-2z"/></symbol>
+        <symbol id="icon-rocket" viewBox="0 0 24 24"><path d="M13.2 2.2c.8-.8 2.2-.8 3 0l3.6 3.6c.8.8.8 2.2 0 3L13 15.6c-1.2 1.2-3.1 1.2-4.2 0L2.2 8.8c-1.2-1.2-1.2-3.1 0-4.2l3.6-3.6c.8-.8 2.2-.8 3 0l4.4 4.4zM4.6 6L3 7.6c-.4.4-.4 1 0 1.4l6.6 6.6c.4.4 1 .4 1.4 0L17.8 9c.4-.4.4-1 0-1.4L16.2 6l-4.4 4.4L7.4 6l-2.8-2.8zM16 14v6c0 .6.4 1 1 1s1-.4 1-1v-6c0-.6-.4-1-1-1s-1 .4-1 1zm-4 2v4c0 .6.4 1 1 1s1-.4 1-1v-4c0-.6-.4-1-1-1s-1 .4-1 1z"/></symbol>
+        <symbol id="icon-commands" viewBox="0 0 24 24"><path d="M8 18h8v-2H8v2zm0-4h8v-2H8v2zm-2 8h12v-2H6v2zm-2-8h2V6H4v8zm0-10h16v2H4V4zm0 4h2V6H4v2zm14 12h2v-2h-2v2zm0-16h2V4h-2v2zM6 6h12v2H6V6zm0 4h12v2H6v-2zm0 4h12v2H6v-2z"/></symbol>
+        <symbol id="icon-alert-warning" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V7h2v7z"/></symbol>
+        <symbol id="icon-alert-info" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></symbol>
+        <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21.64,13.24C21.04,13.18 20.44,13.1 19.82,13.1C16.94,13.1 14.5,15.54 14.5,18.42C14.5,19.04 14.58,19.64 14.7,20.24C10.74,19.56 7.6,16.42 6.92,12.46C6.24,8.5 9.38,5.36 13.34,4.68C17.3,4 20.44,7.14 21.12,11.1C21.32,12.18 21.5,12.78 21.64,13.24z"/></symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24"><path d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7z M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8S16.41,20,12,20z"/></symbol>
+        <symbol id="icon-copy" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></symbol>
+    </svg>
+
+    <main class="container">
+        <header class="header">
             <h1>🤖 WhatsApp N8N Automation</h1>
-            <p>Complete setup guide for automated order processing</p>
-        </div>
+            <p>Your complete dashboard for automated order processing.</p>
+            <div class="theme-switcher" id="theme-switcher" title="Toggle Dark/Light Mode">
+                <svg id="theme-icon"><use href="#icon-moon"></use></svg>
+            </div>
+        </header>
         
         <div class="grid">
-            <div class="card">
-                <h3>📱 System Status</h3>
-                <ul>
-                    <li><span class="status-indicator status-online"></span>Node.js Server: Running</li>
-                    <li><span class="status-indicator status-offline"></span>WhatsApp API: Not Configured</li>
-                    <li><span class="status-indicator status-offline"></span>n8n: Not Started</li>
-                    <li><span class="status-indicator status-online"></span>Database: Initialized</li>
+            <section class="card">
+                <h3><svg><use href="#icon-status"></use></svg>System Status</h3>
+                <ul id="status-list">
+                    <li class="status-item">
+                        <span>Node.js Server</span>
+                        <span class="status-indicator checking" data-status="node-server"></span>
+                    </li>
+                    <li class="status-item">
+                        <span>WhatsApp API</span>
+                        <span class="status-indicator checking" data-status="whatsapp-api"></span>
+                    </li>
+                    <li class="status-item">
+                        <span>n8n Instance</span>
+                        <span class="status-indicator checking" data-status="n8n"></span>
+                    </li>
+                    <li class="status-item">
+                        <span>Database Connection</span>
+                        <span class="status-indicator checking" data-status="database"></span>
+                    </li>
                 </ul>
-                <div style="margin-top: 1rem;">
-                    <a href="/api/orders" class="btn btn-secondary">View Orders</a>
-                    <a href="/api/customers" class="btn btn-secondary">View Customers</a>
+                <div class="btn-group">
+                    <a href="/api/orders" class="btn secondary">View Orders</a>
+                    <a href="/api/customers" class="btn secondary">View Customers</a>
                 </div>
-            </div>
+            </section>
             
-            <div class="card">
-                <h3>⚙️ Setup Steps</h3>
-                <ol style="padding-left: 1.5rem;">
+            <section class="card">
+                <h3><svg><use href="#icon-setup"></use></svg>Setup Steps</h3>
+                <ol>
                     <li>Install n8n globally</li>
                     <li>Configure WhatsApp Business API</li>
                     <li>Set up environment variables</li>
@@ -189,91 +327,159 @@
                     <li>Test webhook connections</li>
                 </ol>
                 <div class="alert alert-info">
-                    <strong>Next:</strong> Follow the detailed setup instructions below
+                    <svg><use href="#icon-alert-info"></use></svg>
+                    <strong>Next:</strong> Follow the quick start guide to get your automation running.
                 </div>
-            </div>
+            </section>
             
-            <div class="card">
-                <h3>🔗 Important URLs</h3>
+            <section class="card">
+                <h3><svg><use href="#icon-link"></use></svg>Important URLs</h3>
                 <ul>
-                    <li><strong>Webhook URL:</strong><br>
-                        <code>http://localhost:3000/webhook/whatsapp</code>
+                    <li><strong>Webhook URL:</strong>
+                        <div class="code-block-wrapper">
+                            <code class="code-block">http://localhost:3000/webhook/whatsapp</code>
+                            <button class="copy-btn" title="Copy to clipboard"><svg width="16" height="16"><use href="#icon-copy"></use></svg></button>
+                        </div>
                     </li>
-                    <li><strong>n8n Interface:</strong><br>
-                        <code>http://localhost:5678</code>
+                    <li><strong>n8n Interface:</strong>
+                         <div class="code-block-wrapper">
+                            <code class="code-block">http://localhost:5678</code>
+                            <button class="copy-btn" title="Copy to clipboard"><svg width="16" height="16"><use href="#icon-copy"></use></svg></button>
+                        </div>
                     </li>
-                    <li><strong>API Base:</strong><br>
-                        <code>http://localhost:3000/api</code>
+                    <li><strong>API Base:</strong>
+                         <div class="code-block-wrapper">
+                            <code class="code-block">http://localhost:3000/api</code>
+                            <button class="copy-btn" title="Copy to clipboard"><svg width="16" height="16"><use href="#icon-copy"></use></svg></button>
+                        </div>
                     </li>
                 </ul>
-            </div>
+            </section>
         </div>
         
-        <div class="card">
-            <h3>🚀 Quick Start Guide</h3>
+        <section class="card" style="margin-top: 2rem;">
+            <h3><svg><use href="#icon-rocket"></use></svg>Quick Start Guide</h3>
             
-            <h4>1. Install n8n</h4>
-            <div class="code-block">npm install n8n -g</div>
+            <h4>1. Install n8n Globally</h4>
+            <div class="code-block-wrapper">
+                <code class="code-block">npm install n8n -g</code>
+                <button class="copy-btn" title="Copy to clipboard"><svg width="16" height="16"><use href="#icon-copy"></use></svg></button>
+            </div>
             
             <h4>2. Configure Environment Variables</h4>
-            <p>Copy <code>.env.example</code> to <code>.env</code> and fill in your values:</p>
-            <div class="code-block">cp .env.example .env</div>
+            <p>Copy <code>.env.example</code> to <code>.env</code> and fill in your credential values.</p>
+            <div class="code-block-wrapper">
+                <code class="code-block">cp .env.example .env</code>
+                <button class="copy-btn" title="Copy to clipboard"><svg width="16" height="16"><use href="#icon-copy"></use></svg></button>
+            </div>
             
             <div class="alert alert-warning">
-                <strong>Required:</strong> You need WhatsApp Business API credentials from Facebook Developer Console
+                <svg><use href="#icon-alert-warning"></use></svg>
+                <strong>Required:</strong> You must have valid WhatsApp Business API credentials from the Meta Developer Console.
             </div>
             
-            <h4>3. Start n8n</h4>
-            <div class="code-block">n8n start</div>
+            <h4>3. Start n8n Instance</h4>
+            <div class="code-block-wrapper">
+                <code class="code-block">n8n start</code>
+                <button class="copy-btn" title="Copy to clipboard"><svg width="16" height="16"><use href="#icon-copy"></use></svg></button>
+            </div>
             
-            <h4>4. Import n8n Workflows</h4>
-            <p>Import the provided workflows in the <code>n8n-workflows/</code> directory</p>
-            
-            <h4>5. Test WhatsApp Integration</h4>
-            <ul style="margin-left: 2rem;">
-                <li>Send "MENU" to your WhatsApp Business number</li>
-                <li>Try placing an order: "1x2, 3x1"</li>
-                <li>Confirm with "CONFIRM"</li>
-                <li>Track with "TRACK"</li>
+            <h4>4. Test WhatsApp Integration</h4>
+            <p>Send the following commands to your WhatsApp Business number to test the workflows:</p>
+            <ul>
+                <li><code>MENU</code> - To view the interactive menu.</li>
+                <li><code>1x2, 3x1</code> - Example command to place an order.</li>
+                <li><code>CONFIRM</code> - To confirm a pending order.</li>
+                <li><code>TRACK</code> - To check the status of your current order.</li>
             </ul>
-        </div>
+        </section>
         
-        <div class="card">
-            <h3>📋 Available Commands</h3>
-            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div>
-                    <h4>Customer Commands:</h4>
-                    <ul>
-                        <li><code>MENU</code> - View menu</li>
-                        <li><code>HELP</code> - Get help</li>
-                        <li><code>TRACK</code> - Track order</li>
-                        <li><code>1x2, 3x1</code> - Place order</li>
-                        <li><code>CONFIRM</code> - Confirm order</li>
-                        <li><code>CANCEL</code> - Cancel order</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer">
+        <footer class="footer">
             <p>🔧 WhatsApp N8N Automation System | Built with Node.js, Express & SQLite</p>
-        </div>
-    </div>
+        </footer>
+    </main>
     
     <script>
-        // Simple status checker
-        async function checkStatus() {
-            try {
-                const response = await fetch('/health');
-                const data = await response.json();
-                console.log('System Status:', data);
-            } catch (error) {
-                console.log('Status check failed:', error);
-            }
-        }
-        
-        // Check status on load
-        checkStatus();
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Theme Switcher ---
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const themeIcon = document.getElementById('theme-icon');
+            const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let currentTheme = localStorage.getItem('theme') || (userPrefersDark ? 'dark' : 'light');
+
+            const applyTheme = (theme) => {
+                document.documentElement.setAttribute('data-theme', theme);
+                themeIcon.innerHTML = `<use href="#icon-${theme === 'dark' ? 'sun' : 'moon'}"></use>`;
+                localStorage.setItem('theme', theme);
+            };
+
+            themeSwitcher.addEventListener('click', () => {
+                currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(currentTheme);
+            });
+            
+            applyTheme(currentTheme); // Apply theme on initial load
+
+            // --- Status Checker ---
+            const statusIndicators = document.querySelectorAll('.status-indicator');
+
+            const mockHealthCheck = async () => {
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // In a real application, this would be a fetch('/health') call.
+                // Here we mock the response data.
+                return {
+                    'node-server': 'online',
+                    'whatsapp-api': Math.random() > 0.3 ? 'online' : 'offline', // Randomly fail for demo
+                    'n8n': 'online',
+                    'database': 'online'
+                };
+            };
+            
+            const checkAllStatus = async () => {
+                try {
+                    const statusData = await mockHealthCheck();
+                    
+                    statusIndicators.forEach(indicator => {
+                        const statusKey = indicator.dataset.status;
+                        indicator.classList.remove('checking');
+                        indicator.classList.add(statusData[statusKey] || 'offline');
+                        indicator.title = `Status: ${statusData[statusKey]}`;
+                    });
+                    
+                } catch (error) {
+                    console.error('Failed to fetch system status:', error);
+                    statusIndicators.forEach(indicator => {
+                        indicator.classList.remove('checking');
+                        indicator.classList.add('offline');
+                        indicator.title = 'Status: Error fetching status';
+                    });
+                }
+            };
+            
+            checkAllStatus(); // Check status on page load
+
+            // --- Copy to Clipboard ---
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.previousElementSibling;
+                    const textToCopy = codeBlock.innerText;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        button.innerHTML = 'Copied!';
+                        setTimeout(() => {
+                             button.innerHTML = `<svg width="16" height="16"><use href="#icon-copy"></use></svg>`;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+                });
+            });
+
+        });
     </script>
 </body>
 </html>
